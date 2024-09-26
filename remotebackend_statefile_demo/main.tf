@@ -11,7 +11,7 @@ resource "aws_instance" "mikecloud24" {
 }
 
 resource "aws_dynamodb_table" "terraform_lock" {
-  name           = "terraform-lock"                  # you can name it depending on your choise.
+  name           = "terraform-lock"                  # you can name it depending on your choice.
   billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "LockID"
 
