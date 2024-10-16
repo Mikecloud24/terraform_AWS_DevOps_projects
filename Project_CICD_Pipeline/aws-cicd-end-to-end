@@ -1,0 +1,74 @@
+Project Ci-Cd  
+while doing pipeline, the execution can take place on the following: 
+1)ec2 
+2) ecs 
+3) Lambda 
+
+for this project, I will use ec2, which is evergreen and lot of customization on the size and 
+requirement can be done by clients. 
+(ec2 - evergreen - is not ec2 here on cicd, just a pipeline to execute push on ec2 ??? ) 
+Step 1:  
+download the git aws code commit credentials and then also acct access key and password. 
+
+Step 2:  
+Create 2 roles: 
+a) For ec2 role, (ec2role for AmazonEC2RoleforAWSCodeDeploy),also attach  
+Poweruser (for production don’t attaché poweruser) 
+b) For code deploy role aws (awsCodeDeployeRole) ( name: cicd-project-codeDeployRole) 
+
+Step3: create a vpc  {Custom vpc} 
+VPC Name: 'cicd-project-vpc-0501' 
+
+Step 4:  
+Launch ec2 {Amazon linux} -create a ec2, linux , attach the ec2 role we just created and add the user data for the code 
+deploy mandate  
+(in ec2, we install ruby and install the codedeploy engine so that the code is caught from code 
+commit and push to direct the /var/www/html directory of a web app or a different link for flask 
+or nodejs , but usually it is the same html directory only )  
+EC2 Name: 'cicd-project-ec2-engine-0501' {this ec2 Engine is to push the code to live} 
+user data  
+#-------------------- 
+#!/bin/bash 
+sudo yum -y update 
+sudo yum -y install ruby 
+sudo yum -y install wget 
+cd /home/ec2-user 
+wget https://aws-codedeploy-ap-south-1.s3.ap-south-1.amazonaws.com/latest/install 
+sudo chmod +x ./install 
+sudo ./install auto 
+sudo yum install -y python-pip 
+sudo pip install awscli 
+#---------------------------- 
+
+Step 5  
+code commit repo: 
+Code commit Name: 'webAppmain-0501’. 
+1)1st create a repo called 'webAppmain-0501’. 
+2)create the 1st file readme.md so main branch is initiated  
+3)create a local directory and clone the repo from code commit using git bash.   
+4)using visual studio code work on the code of the project required by client and then push it to 
+main repo using git bash commands--->>> 
+git add .  
+git status  
+git commit -m '1st time files added' 
+git push origin main 
+go to code commit and check-->>> 
+
+Step 6 code deploy.  
+go to code deploy section. 
+1)1st create the application  
+Application name: webAppmain-application  
+compute platform: ec2/0n-premises. 
+2) we go and create a deployment group -deployment group name: webAppmain-deploygroup -service code: the one we created in step 2, role for code deploy -deployment Type: in place -envirnment confg : tick Amazon ec2 instance and  
+browse our ec2 instance.  -Agent: now and schedule updates -Deployment settings: CodeDeployDefault.AllAtOnce 
+{uncheck Loadbalancer} 
+
+Step 7 Code pipeline 
+we go and create the final code pipeline. -on step 1 of code pipeline  -Pipeline Name: webAppmain-pipeline -Pipeline Type: V2 -Execution mode: Queued  
+-Service role: AWSCodePipelineServiceRole-us-east-1-webAppmain-pipeline -Variable: leave default -on step 2 source  -Source Provider: AWS Code Commit -Repo: 'webAppmain-3004' -Branch Name: main -change detection options: Amazon CloudWatch Event -Output artifact format: CodePipeline default - on step 3 build  
+since this is web app html, we need not have build, as in java we need to convert it from java 
+f
+ iles to class files and then war or jar files executable.  
+but in this case, we can just skip the code build.  - on step 4 Add deploy stage  -deploy provider: AWS CodeDeploy  -region: US-east-1 -Application Name: webAppmain-application  -Deployment group: webAppmain-deploygroup -Review + create Pipeline 
+from here you start working on the webAppmain by updating and committing using git bash and 
+vscode.
