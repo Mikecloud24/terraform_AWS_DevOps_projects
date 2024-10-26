@@ -1,0 +1,22 @@
+trigger:
+- main
+
+pool:
+  Image: 'default'
+
+steps:
+- task: Docker@2
+  inputs:
+    containerRegistry: 'myACR'
+    repository: 'myACR.azurecr.io/frontend'
+    command: 'buildAndPush'
+    Dockerfile: '**/frontend/Dockerfile'
+    tags: 'latest'
+
+- task: Docker@2
+  inputs:
+    containerRegistry: 'myACR'
+    repository: 'myACR.azurecr.io/backend'
+    command: 'buildAndPush'
+    Dockerfile: '**/backend/Dockerfile'
+    tags: 'latest'
