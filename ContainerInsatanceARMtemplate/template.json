@@ -1,0 +1,59 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "containerGroups_acilinuxpublicipcontainergroup_name": {
+            "defaultValue": "acilinuxpublicipcontainergroup",
+            "type": "String"
+        }
+    },
+    "variables": {},
+    "resources": [
+        {
+            "type": "Microsoft.ContainerInstance/containerGroups",
+            "apiVersion": "2024-05-01-preview",
+            "name": "[parameters('containerGroups_acilinuxpublicipcontainergroup_name')]",
+            "location": "eastus",
+            "properties": {
+                "sku": "Standard",
+                "containers": [
+                    {
+                        "name": "[parameters('containerGroups_acilinuxpublicipcontainergroup_name')]",
+                        "properties": {
+                            "image": "mcr.microsoft.com/azuredocs/aci-helloworld",
+                            "ports": [
+                                {
+                                    "protocol": "TCP",
+                                    "port": 80
+                                }
+                            ],
+                            "environmentVariables": [],
+                            "configMap": {
+                                "keyValuePairs": {}
+                            },
+                            "resources": {
+                                "requests": {
+                                    "memoryInGB": 2,
+                                    "cpu": 1
+                                }
+                            }
+                        }
+                    }
+                ],
+                "initContainers": [],
+                "restartPolicy": "Always",
+                "ipAddress": {
+                    "ports": [
+                        {
+                            "protocol": "TCP",
+                            "port": 80
+                        }
+                    ],
+                    "ip": "20.75.182.143",
+                    "type": "Public"
+                },
+                "osType": "Linux"
+            }
+        }
+    ]
+}
